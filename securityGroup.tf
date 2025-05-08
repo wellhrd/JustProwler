@@ -62,26 +62,29 @@
 # }
 
 
-# resource "aws_security_group" "alb_sg" {
-#   name        = "alb-sg"
-#   description = "Allow HTTP traffic to ALB"
-#   vpc_id      = module.vpc.vpc_id
+resource "aws_security_group" "alb_sg" {
+  name        = "alb-sg"
+  description = "Allow HTTP traffic to ALB"
+  vpc_id      = module.vpc.vpc_id
 
-#   ingress {
-#     from_port   = 80
-#     to_port     = 80
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#     description = "Allow HTTP from anywhere"
-#   }
+  ingress {
+    from_port   = var.http_port
+    to_port     = var.http_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow inbound HTTP traffic"
+  }
 
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "alb-sg"
+  }
+}
 
 
 # ESC Security group
@@ -94,8 +97,8 @@ resource "aws_security_group" "ecs_task_sg" {
     from_port = 3000
     to_port   = 3000
     protocol  = "tcp"
-    # security_groups = [aws_security_group.alb_sg.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    #cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [ aws_security_group.alb_sg.id ]
     description = "Allow traffic --- to UI container"
   }
 
@@ -103,25 +106,28 @@ resource "aws_security_group" "ecs_task_sg" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    #cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [ aws_security_group.alb_sg.id ]
     description = "Allow all traffic  -- API"
   }
 
-  # ingress {
-  #   from_port   = 5432
-  #   to_port     = 5432
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  #   description = "Allow all traffic -- POSTGRES"
-  # }
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    #cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [ aws_security_group.alb_sg.id ]
+    description = "Allow all traffic -- POSTGRES"
+  }
 
-  # ingress {
-  #   from_port   = 6379
-  #   to_port     = 6379
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  #   description = "Allow all traffic -- VALKEY"
-  # }
+  ingress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    #cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [ aws_security_group.alb_sg.id ]
+    description = "Allow all traffic -- VALKEY"
+  }
 
   egress {
     from_port   = 0

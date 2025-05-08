@@ -34,7 +34,6 @@ module "ecs_service_postgres" {
   create_task_definition = false
 
 
-
   subnet_ids         = module.vpc.public_subnets
   security_group_ids = [aws_security_group.ecs_task_sg.id]
 
@@ -78,7 +77,7 @@ module "ecs_service_postgres" {
     service = {
       client_alias = {
         port     = 5432
-        dns_name = "posgres"
+        dns_name = "posgres-db"
       }
       port_name      = "postgres-port"
       discovery_name = "postgres"
@@ -159,7 +158,7 @@ module "ecs_service_api" {
 
 
   subnet_ids         = module.vpc.public_subnets
-  security_group_ids = [aws_security_group.ecs_task_sg.id]
+  #security_group_ids = [aws_security_group.ecs_task_sg.id]
 
   # security_group_rules = {
   #   egress_all = {
@@ -256,18 +255,18 @@ module "ecs_service_ui" {
 
   # load_balancer = {
   #   service = {
-  #     target_group_arn = module.alb.target_group_arn
+  #     target_group_arn = module.alb.aws_lb_target_group.arn 
   #     container_name   = "prowler-ui"
   #     container_port   = 3000
   #   }
   # }
-  # load_balancer = {
-  #   service = {
-  #   target_group_arn = module.alb.default_target_group_arn
-  #     container_name   = "prowler-ui"
-  #     container_port   = 3000
-  #   }
-  # }
+  load_balancer = {
+    service = {
+    target_group_arn = module.alb.default_target_group_arn
+      container_name   = "prowler-ui"
+      container_port   = 3000
+    }
+  }
 
   # depends_on = [ 
   #   # module.alb.target_group_arn,
@@ -313,7 +312,7 @@ resource "aws_ecs_task_definition" "postgres_task" {
   container_definitions = jsonencode([{
     name      = "postgres"
     image     = "${module.ecr["postgres"].repository_url}:16.3-alpine3.20"
-    essential = true
+    essential = true 
 
     environment = [
       { name = "POSTGRES_USER", value = "prowler" },
@@ -467,7 +466,7 @@ resource "aws_ecs_task_definition" "prowler_ui_task" {
 
     environment = [
       { name = "PROWLER_UI_VERSION", value = "stable" }, 
-      { name = "AUTH_URL", value = "http://127.0.0.1:3000" }, #Or Should it be localhost?
+      { name = "AUTH_URL", value = "http://localhost:3000" }, 
       { name = "API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
       { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://prowler-api:8080/api/v1/docs" },
       { name = "AUTH_TRUST_HOST", value = "true" },

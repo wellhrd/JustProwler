@@ -104,7 +104,7 @@ variable "deregistration_delay" {
 
 variable "health_check_path" {
   type        = string
-  default     = "/health"
+  default     = "/api/v1/health"
   description = "The destination for the health check request"
 }
 
@@ -164,7 +164,7 @@ variable "target_group_protocol" {
 
 variable "target_group_name" {
   type        = string
-  default     = "prowler"
+  default     = "prowler-ui-service"
   description = "The name for the default target group, uses a module label name if left empty"
 }
 

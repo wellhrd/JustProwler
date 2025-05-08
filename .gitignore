@@ -3,3 +3,5 @@
 /provider.tf
 /terraform.tfstate
 /terraform.tfstate.backup
+/EC2.tf 
+/Jordz-EC2.tf
