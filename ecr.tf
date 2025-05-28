@@ -14,12 +14,12 @@ module "ecr" {
     rules = [
       {
         rulePriority = 1,
-        description  = "Keep last 6 images",
+        description  = "Keep the 4/6 docker images for prowler",
         selection = {
           tagStatus     = "tagged",
           tagPrefixList = ["v"],
           countType     = "imageCountMoreThan",
-          countNumber   = 6
+          countNumber   = 4
         },
         action = {
           type = "expire"

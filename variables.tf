@@ -39,6 +39,7 @@ variable "subnet_ids" {
   default = ["172.30.3.0/28", "172.30.4.0/28"]
 }
 
+
 # ------ ECR Variables ------
 variable "ecr_repositories" {
   description = "List of ECR repository names"
@@ -48,8 +49,8 @@ variable "ecr_repositories" {
     "valkey/valkey",
     "postgres",
     "prowlercloud/prowler-api",
-    "prowler-worker",
-    "prowler-worker-beat"
+    #"prowler-worker",
+    #"prowler-worker-beat"
   ]
 }
 
@@ -146,7 +147,7 @@ variable "health_check_interval" {
 
 variable "health_check_matcher" {
   type        = string
-  default     = "200-399"
+  default     = "200-499"
   description = "The HTTP response codes to indicate a healthy check"
 }
 
@@ -212,7 +213,7 @@ variable "env_variables" {
   }))
   default = [
     { name = "PROWLER_UI_VERSION",              value = "stable" },
-    { name = "AUTH_URL",                        value = "http://prow:3000" },
+    { name = "AUTH_URL",                        value = "http://localhost:3000" },
     { name = "API_BASE_URL",                    value = "http://prowler-api:8080/api/v1" },
     { name = "NEXT_PUBLIC_API_DOCS_URL",        value = "http://prowler-api:8080/api/v1/docs" },
     { name = "AUTH_TRUST_HOST",                 value = "true" },
@@ -220,7 +221,7 @@ variable "env_variables" {
     { name = "AUTH_SECRET",                     value = "N/c6mnaS5+SWq81+819OrzQZlmx1Vxtp/orjttJSmw8=" },
  
     { name = "PROWLER_API_VERSION",             value = "stable" },
-    { name = "POSTGRES_HOST",                   value = "postgres-service" },
+    { name = "POSTGRES_HOST",                   value = "postgres-db" },
     { name = "POSTGRES_PORT",                   value = "5432" },
     { name = "POSTGRES_ADMIN_USER",             value = "prowler_admin" },
     { name = "POSTGRES_ADMIN_PASSWORD",         value = "postgres" },
@@ -228,7 +229,7 @@ variable "env_variables" {
     { name = "POSTGRES_PASSWORD",               value = "postgres" },
     { name = "POSTGRES_DB",                     value = "prowler_db" },
  
-    { name = "VALKEY_HOST",                     value = "valkey-service" },
+    { name = "VALKEY_HOST",                     value = "valkey" },
     { name = "VALKEY_PORT",                     value = "6379" },
     { name = "VALKEY_DB",                       value = "0" },
  

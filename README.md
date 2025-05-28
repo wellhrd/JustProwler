@@ -2,7 +2,7 @@
 Provisioning and Deploying Prowler using AWS Elastic Container Service
 
 
-Official project sources:
+# Official project sources:
 
 https://github.com/prowler-cloud/prowler/blob/master/.env
 

@@ -5,3 +5,4 @@
 /terraform.tfstate.backup
 /EC2.tf 
 /Jordz-EC2.tf
+/S3.tf 
