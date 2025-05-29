@@ -60,7 +60,7 @@ variable "repository_image_tag_mutability" {
   default     = "IMMUTABLE"
 }
 
-# Added for ALB Cloud Posse
+# Added for ALB Cloud Posse or AWS
 variable "http_port" {
   type        = number
   default     = 80 #Changed to 80 for the ALB (will route to 3000 on the container)

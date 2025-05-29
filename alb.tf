@@ -1,45 +1,61 @@
-# resource "aws_lb" "prowler" {
-#   name               = "prowler-alb-2"
-#   internal           = false
-#   load_balancer_type = "application"
-#   subnets            = module.vpc.public_subnets
-#   security_groups    = [aws_security_group.ecs_task_sg.id]
-#   enable_deletion_protection = false
+module "alb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "9.15.0"
+  security_groups = [ aws_security_group.ecs_task_sg.id ]
+  
+  name                       = "New-Prowler-ALB"
+  load_balancer_type         = "application"
+  vpc_id                     = module.vpc.vpc_id
+  subnets                    = module.vpc.public_subnets
+  enable_deletion_protection = false
 
-#   tags = {
-#     Environment = "Development"
-#     Project     = "Example"
-#   }
-# }
+  listeners = {
+    http = {
+      port     = 80
+      protocol = "HTTP"
+      
+    forward = {
+        target_group_key = "ecs_tg"
+      }
+ 
+      rules = [
+        {
+          priority = 1
+          actions = [{
+            type             = "forward"
+            target_group_key = "ecs_tg"
+          }]
+          conditions = [{
+            path_pattern = {
+              values = ["/", "/ui/*"]
+            }
+          }]
+        }
+      ]
+    }
+  }
 
-# resource "aws_lb_target_group" "prowler_ui" {
-#   name        = "prowler-ui"
-#   port        = 3000
-#   protocol    = "HTTP"
-#   vpc_id      = module.vpc.vpc_id
-#   target_type = "ip"
+  target_groups = {
+    ecs_tg = {
+      backend_protocol = "HTTP"
+      backend_port     = 3000
+      target_type      = "ip"
 
-#   health_check {
-#     path                = "/sign-in"
-#     protocol            = "HTTP"
-#     matcher             = "200"
-#     interval            = 30
-#     timeout             = 10
-#     healthy_threshold   = 2
-#     unhealthy_threshold = 3
-#   }
-# }
-
-# resource "aws_lb_listener" "http_forward" {
-#   load_balancer_arn = module.alb.alb_arn
-#   port              = 80
-#   protocol          = "HTTP"
-
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = module.alb.default_target_group_arn
-#   }
-# }
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200-499"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
+      create_attachment = false
+    }
+  }
+}
 
 
 # https://x.com/lloydtheophilus/status/1901641471524282426?s=46&t=ugYfo1ZQnaAzboVIHSIC1g >> Structure for *-*-TERRAFORM-*-*

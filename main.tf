@@ -170,6 +170,16 @@ module "ecs_service_ui" {
 
   enable_execute_command = true
 
+    # Adds load balancer to the UI service 
+   load_balancer = {
+    service = {
+      target_group_arn = module.alb.target_groups["ecs_tg"].arn
+      container_name   = "prowler-ui"
+      container_port   = 3000
+    }
+  }
+  depends_on = [ module.alb ]
+
 }
 
 # Worker & Worker-beat is in the same task definition as the API
@@ -276,7 +286,7 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
 
     environment = [
       { name = "PROWLER_API_VERSION", value = "stable" },
-      #{ name = "POSTGRES_HOST", value = "postgres-db" },
+      { name = "POSTGRES_HOST", value = "postgres-db" },
       { name = "POSTGRES_PORT", value = "5432" },
       { name = "POSTGRES_ADMIN_USER", value = "prowler_admin" },
       { name = "POSTGRES_ADMIN_PASSWORD", value = "postgres" },
@@ -300,7 +310,7 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
       { name = "DJANGO_BROKER_VISIBILITY_TIMEOUT", value = "86400" },
 
       # Service connect
-      { name = "POSTGRES_HOST", value = "postgres.prowler.local" }
+      #{ name = "POSTGRES_HOST", value = "postgres.prowler.local" }
 
     ]
 
@@ -368,6 +378,7 @@ resource "aws_ecs_task_definition" "prowler_ui_task" {
     portMappings = [
       { containerPort = 3000, hostPort = 3000, protocol = "tcp", name = "prowler-ui-port" }
     ]
+    #environment = var.env_variables removed and UI shows up
 
     logConfiguration = {
       logDriver = "awslogs"
