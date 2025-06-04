@@ -96,14 +96,14 @@
 
 # ESC Security group
 resource "aws_security_group" "ecs_task_sg" {
-  name   = "ecs-tasks-sg"
+  name        = "ecs-tasks-sg"
   description = "Allow traffic among containers"
-  vpc_id = module.vpc.vpc_id
+  vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port = 3000
-    to_port   = 3000
-    protocol  = "tcp"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow traffic --- to UI container"
   }
@@ -116,7 +116,7 @@ resource "aws_security_group" "ecs_task_sg" {
     description = "Allow all traffic  -- API"
   }
 
-   ingress {
+  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -137,7 +137,6 @@ resource "aws_security_group" "ecs_task_sg" {
     to_port     = 6379
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    #security_groups = [ aws_security_group.ecs_task_sg.id ]
     description = "Allow all traffic -- VALKEY"
   }
 

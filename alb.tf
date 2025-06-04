@@ -1,8 +1,8 @@
 module "alb" {
-  source  = "terraform-aws-modules/alb/aws"
-  version = "9.15.0"
-  security_groups = [ aws_security_group.ecs_task_sg.id ]
-  
+  source          = "terraform-aws-modules/alb/aws"
+  version         = "9.15.0"
+  security_groups = [aws_security_group.ecs_task_sg.id]
+
   name                       = "New-Prowler-ALB"
   load_balancer_type         = "application"
   vpc_id                     = module.vpc.vpc_id
@@ -13,11 +13,11 @@ module "alb" {
     http = {
       port     = 80
       protocol = "HTTP"
-      
-    forward = {
+
+      forward = {
         target_group_key = "ecs_tg"
       }
- 
+
       rules = [
         {
           priority = 1
@@ -116,13 +116,13 @@ module "alb" {
 # module "alb" {
 #   source  = "terraform-aws-modules/alb/aws"
 #   version = "9.15.0"
- 
+
 #   name                       = "local-loadbalance"
 #   load_balancer_type         = "application"
 #   vpc_id                     = module.vpc.vpc_id
 #   subnets                    = module.vpc.public_subnets
 #   enable_deletion_protection = false
- 
+
 #   security_group_ingress_rules = {
 #     all_http_3000 = {
 #       from_port   = 3000
@@ -130,7 +130,7 @@ module "alb" {
 #       ip_protocol = "tcp"
 #       cidr_ipv4   = "0.0.0.0/0"
 #     }
- 
+
 #     all_http_8080 = {
 #       from_port   = 8080
 #       to_port     = 8080
@@ -138,23 +138,23 @@ module "alb" {
 #       cidr_ipv4   = "0.0.0.0/0"
 #     }
 #   }
- 
+
 #   security_group_egress_rules = {
 #     all = {
 #       ip_protocol = "-1"
 #       cidr_ipv4   = "0.0.0.0/0"
 #     }
 #   }
- 
+
 #   listeners = {
 #     ex_http_3000 = {
 #       port     = 3000
 #       protocol = "HTTP"
- 
+
 #       forward = {
 #         target_group_key = "prowler_ui_tg"
 #       }
- 
+
 #       rules = [
 #         {
 #           priority = 1
@@ -182,23 +182,23 @@ module "alb" {
 #         }
 #       ]
 #     }
- 
+
 #     ex_http_8080 = {
 #       port     = 8080
 #       protocol = "HTTP"
- 
+
 #       forward = {
 #         target_group_key = "prowler_api_tg"
 #       }
 #     }
 #   }
- 
+
 #   target_groups = {
 #     prowler_api_tg = {
 #       backend_protocol = "HTTP"
 #       backend_port     = 8080
 #       target_type      = "ip"
- 
+
 #       health_check = {
 #         enabled             = true
 #         healthy_threshold   = 5
@@ -212,12 +212,12 @@ module "alb" {
 #       }
 #       create_attachment = false
 #     }
- 
+
 #     prowler_ui_tg = {
 #       backend_protocol = "HTTP"
 #       backend_port     = 3000
 #       target_type      = "ip"
- 
+
 #       health_check = {
 #         enabled             = true
 #         healthy_threshold   = 5

@@ -204,57 +204,65 @@ variable "autoscaling_max_capacity" {
 
 
 
-# Var just for wrker and beat
+# Var just for worker and beat
 variable "env_variables" {
   description = "The base domain for your infrastructure"
-  type        = list(object({
-    name = string
+  type = list(object({
+    name  = string
     value = string
   }))
   default = [
-    { name = "PROWLER_UI_VERSION",              value = "stable" },
-    { name = "AUTH_URL",                        value = "http://localhost:3000" },
-    { name = "API_BASE_URL",                    value = "http://prowler-api:8080/api/v1" },
-    { name = "NEXT_PUBLIC_API_DOCS_URL",        value = "http://prowler-api:8080/api/v1/docs" },
-    { name = "AUTH_TRUST_HOST",                 value = "true" },
-    { name = "UI_PORT",                         value = "3000" },
-    { name = "AUTH_SECRET",                     value = "N/c6mnaS5+SWq81+819OrzQZlmx1Vxtp/orjttJSmw8=" },
- 
-    { name = "PROWLER_API_VERSION",             value = "stable" },
-    { name = "POSTGRES_HOST",                   value = "postgres-db" },
-    { name = "POSTGRES_PORT",                   value = "5432" },
-    { name = "POSTGRES_ADMIN_USER",             value = "prowler_admin" },
-    { name = "POSTGRES_ADMIN_PASSWORD",         value = "postgres" },
-    { name = "POSTGRES_USER",                   value = "prowler" },
-    { name = "POSTGRES_PASSWORD",               value = "postgres" },
-    { name = "POSTGRES_DB",                     value = "prowler_db" },
- 
-    { name = "VALKEY_HOST",                     value = "valkey" },
-    { name = "VALKEY_PORT",                     value = "6379" },
-    { name = "VALKEY_DB",                       value = "0" },
- 
-    { name = "DJANGO_TMP_OUTPUT_DIRECTORY",     value = "/tmp/prowler_api_output" },
-    { name = "DJANGO_FINDINGS_BATCH_SIZE",      value = "1000" },
-    { name = "DJANGO_OUTPUT_S3_AWS_ACCESS_KEY_ID",      value = "" },
-    { name = "DJANGO_OUTPUT_S3_AWS_SECRET_ACCESS_KEY",   value = "" },
-    { name = "DJANGO_OUTPUT_S3_AWS_SESSION_TOKEN",       value = "" },
-    { name = "DJANGO_OUTPUT_S3_AWS_DEFAULT_REGION",      value = "" },
-    { name = "DJANGO_OUTPUT_S3_AWS_OUTPUT_BUCKET",       value = "" },
- 
-    { name = "DJANGO_ALLOWED_HOSTS",            value = "localhost,127.0.0.1,prowler-api" },
-    { name = "DJANGO_BIND_ADDRESS",             value = "0.0.0.0" },
-    { name = "DJANGO_PORT",                     value = "8080" },
-    { name = "DJANGO_DEBUG",                    value = "False" },
-    { name = "DJANGO_SETTINGS_MODULE",          value = "config.django.production" },
-    { name = "DJANGO_LOGGING_FORMATTER",        value = "human_readable" },
-    { name = "DJANGO_LOGGING_LEVEL",            value = "INFO" },
-    { name = "DJANGO_WORKERS",                  value = "4" },
-    { name = "DJANGO_ACCESS_TOKEN_LIFETIME",    value = "30" },
-    { name = "DJANGO_REFRESH_TOKEN_LIFETIME",   value = "1440" },
-    { name = "DJANGO_CACHE_MAX_AGE",            value = "3600" },
-    { name = "DJANGO_STALE_WHILE_REVALIDATE",   value = "60" },
-    { name = "DJANGO_MANAGE_DB_PARTITIONS",     value = "True" },
- 
+    # UI ENV
+    { name = "PROWLER_UI_VERSION", value = "stable" },
+    { name = "AUTH_URL", value = "http://prowler-ui:3000" },
+    { name = "API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
+    { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://prowler-api:8080/api/v1/docs" },
+    { name = "AUTH_TRUST_HOST", value = "true" },
+    { name = "UI_PORT", value = "3000" },
+    { name = "AUTH_SECRET", value = "N/c6mnaS5+SWq81+819OrzQZlmx1Vxtp/orjttJSmw8=" },
+    { name = "PROWLER_API_VERSION", value = "stable" },
+    # POSTGRES ENV
+    { name = "POSTGRES_HOST", value = "postgres-db" },
+    { name = "POSTGRES_PORT", value = "5432" },
+    { name = "POSTGRES_ADMIN_USER", value = "prowler_admin" },
+    { name = "POSTGRES_ADMIN_PASSWORD", value = "postgres" },
+    { name = "POSTGRES_USER", value = "prowler" },
+    { name = "POSTGRES_PASSWORD", value = "postgres" },
+    { name = "POSTGRES_DB", value = "prowler_db" },
+    # VAKEY ENV
+    { name = "VALKEY_HOST", value = "valkey" },
+    { name = "VALKEY_PORT", value = "6379" },
+    { name = "VALKEY_DB", value = "0" },
+  # Some new variables appeared
+
+  # Celery-Prowler task settings
+# TASK_RETRY_DELAY_SECONDS=0.1
+# TASK_RETRY_ATTEMPTS=5
+
+
+    # API type-shit ENV
+    { name = "DJANGO_TMP_OUTPUT_DIRECTORY", value = "/tmp/prowler_api_output" },
+    { name = "DJANGO_FINDINGS_BATCH_SIZE", value = "1000" },
+    { name = "DJANGO_OUTPUT_S3_AWS_ACCESS_KEY_ID", value = "" },
+    { name = "DJANGO_OUTPUT_S3_AWS_SECRET_ACCESS_KEY", value = "" },
+    { name = "DJANGO_OUTPUT_S3_AWS_SESSION_TOKEN", value = "" },
+    { name = "DJANGO_OUTPUT_S3_AWS_DEFAULT_REGION", value = "" },
+    { name = "DJANGO_OUTPUT_S3_AWS_OUTPUT_BUCKET", value = "" },
+
+    { name = "DJANGO_ALLOWED_HOSTS", value = "localhost,127.0.0.1,prowler-api" },
+    { name = "DJANGO_BIND_ADDRESS", value = "0.0.0.0" },
+    { name = "DJANGO_PORT", value = "8080" },
+    { name = "DJANGO_DEBUG", value = "False" },
+    { name = "DJANGO_SETTINGS_MODULE", value = "config.django.production" },
+    { name = "DJANGO_LOGGING_FORMATTER", value = "human_readable" },
+    { name = "DJANGO_LOGGING_LEVEL", value = "INFO" },
+    { name = "DJANGO_WORKERS", value = "4" },
+    { name = "DJANGO_ACCESS_TOKEN_LIFETIME", value = "30" },
+    { name = "DJANGO_REFRESH_TOKEN_LIFETIME", value = "1440" },
+    { name = "DJANGO_CACHE_MAX_AGE", value = "3600" },
+    { name = "DJANGO_STALE_WHILE_REVALIDATE", value = "60" },
+    { name = "DJANGO_MANAGE_DB_PARTITIONS", value = "True" },
+
     { name = "DJANGO_TOKEN_SIGNING_KEY", value = <<-EOT
         -----BEGIN PRIVATE KEY-----
         MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDs4e+kt7SnUJek
@@ -286,7 +294,7 @@ variable "env_variables" {
         -----END PRIVATE KEY-----
         EOT
     },
- 
+
     { name = "DJANGO_TOKEN_VERIFYING_KEY", value = <<-EOT
         -----BEGIN PUBLIC KEY-----
         MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7OHvpLe0p1CXpOlea/cz
@@ -299,20 +307,20 @@ variable "env_variables" {
         -----END PUBLIC KEY-----
         EOT
     },
- 
+
     { name = "DJANGO_SECRETS_ENCRYPTION_KEY", value = "oE/ltOhp/n1TdbHjVmzcjDPLcLA41CVI/4Rk+UB5ESc=" },
     { name = "DJANGO_BROKER_VISIBILITY_TIMEOUT", value = "86400" },
     { name = "DJANGO_SENTRY_DSN", value = "" },
- 
+
     { name = "SENTRY_ENVIRONMENT", value = "local" },
     { name = "SENTRY_RELEASE", value = "local" },
- 
+
     { name = "NEXT_PUBLIC_PROWLER_RELEASE_VERSION", value = "v5.6.0" },
- 
+
     # { name = "SOCIAL_GOOGLE_OAUTH_CALLBACK_URL", value = "${AUTH_URL}/api/auth/callback/google" },
     # { name = "SOCIAL_GOOGLE_OAUTH_CLIENT_ID", value = "" },
     # { name = "SOCIAL_GOOGLE_OAUTH_CLIENT_SECRET", value = "" },
- 
+
     # { name = "SOCIAL_GITHUB_OAUTH_CALLBACK_URL", value = "${AUTH_URL}/api/auth/callback/github" },
     # { name = "SOCIAL_GITHUB_OAUTH_CLIENT_ID", value = "" },
     # { name = "SOCIAL_GITHUB_OAUTH_CLIENT_SECRET", value = "" }

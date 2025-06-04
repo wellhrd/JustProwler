@@ -1,4 +1,4 @@
-# prowler-ecs
+# Prowler-ECS
 Provisioning and Deploying Prowler using AWS Elastic Container Service
 
 
