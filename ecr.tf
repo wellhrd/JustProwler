@@ -7,6 +7,7 @@ module "ecr" {
 
   repository_type                 = "private"
   repository_image_tag_mutability = var.repository_image_tag_mutability
+  repository_image_scan_on_push   = true 
   repository_force_delete         = true
   create_lifecycle_policy         = true
 

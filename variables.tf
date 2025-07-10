@@ -55,9 +55,9 @@ variable "ecr_repositories" {
 }
 
 variable "repository_image_tag_mutability" {
-  description = "The tag mutability setting for the repository. Must be one of: `MUTABLE` or `IMMUTABLE`. Defaults to `IMMUTABLE`"
+  description = "The tag mutability setting for the repository. Must be one of: `MUTABLE` or `IMMUTABLE`."
   type        = string
-  default     = "IMMUTABLE"
+  default     = "MUTABLE"
 }
 
 # Added for ALB Cloud Posse or AWS
@@ -201,10 +201,7 @@ variable "autoscaling_max_capacity" {
   default     = 10
 }
 
-
-
-
-# Var just for worker and beat
+# ENV VARS FOR THE SELECTED TASK DEFINITIONS
 variable "env_variables" {
   description = "The base domain for your infrastructure"
   type = list(object({
@@ -214,13 +211,17 @@ variable "env_variables" {
   default = [
     # UI ENV
     { name = "PROWLER_UI_VERSION", value = "stable" },
-    { name = "AUTH_URL", value = "http://prowler-ui:3000" },
-    { name = "API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
-    { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://prowler-api:8080/api/v1/docs" },
+    { name = "AUTH_URL", value = "http://New-Prowler-ALB-59150501.us-east-1.elb.amazonaws.com:3000" },
+    # Gonna add this ->  NEXTAUTH_URL=http://prowler-ui:3000
+    #{ name = "NEXTAUTH_URL", value = "http://New-Prowler-ALB-59150501.us-east-1.elb.amazonaws.com" },
     { name = "AUTH_TRUST_HOST", value = "true" },
+    { name = "API_BASE_URL", value = "http://New-Prowler-ALB-59150501.us-east-1.elb.amazonaws.com:8080/api/v1" },
+    { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://prowler-api:8080/api/v1/docs" },
+
     { name = "UI_PORT", value = "3000" },
     { name = "AUTH_SECRET", value = "N/c6mnaS5+SWq81+819OrzQZlmx1Vxtp/orjttJSmw8=" },
     { name = "PROWLER_API_VERSION", value = "stable" },
+
     # POSTGRES ENV
     { name = "POSTGRES_HOST", value = "postgres-db" },
     { name = "POSTGRES_PORT", value = "5432" },
@@ -229,16 +230,15 @@ variable "env_variables" {
     { name = "POSTGRES_USER", value = "prowler" },
     { name = "POSTGRES_PASSWORD", value = "postgres" },
     { name = "POSTGRES_DB", value = "prowler_db" },
-    # VAKEY ENV
+
+    # VALKEY ENV
     { name = "VALKEY_HOST", value = "valkey" },
     { name = "VALKEY_PORT", value = "6379" },
     { name = "VALKEY_DB", value = "0" },
-  # Some new variables appeared
 
-  # Celery-Prowler task settings
-# TASK_RETRY_DELAY_SECONDS=0.1
-# TASK_RETRY_ATTEMPTS=5
-
+    # Some new variables appeared -> Celery-Prowler task settings
+    { name = "TASK_RETRY_DELAY_SECONDS", value = "0.1" },
+    { name = "TASK_RETRY_ATTEMPTS", value = "5" },
 
     # API type-shit ENV
     { name = "DJANGO_TMP_OUTPUT_DIRECTORY", value = "/tmp/prowler_api_output" },
@@ -249,10 +249,10 @@ variable "env_variables" {
     { name = "DJANGO_OUTPUT_S3_AWS_DEFAULT_REGION", value = "" },
     { name = "DJANGO_OUTPUT_S3_AWS_OUTPUT_BUCKET", value = "" },
 
-    { name = "DJANGO_ALLOWED_HOSTS", value = "localhost,127.0.0.1,prowler-api" },
+    { name = "DJANGO_ALLOWED_HOSTS", value = "localhost,127.0.0.1,prowler-api,prowler-ui" },
     { name = "DJANGO_BIND_ADDRESS", value = "0.0.0.0" },
     { name = "DJANGO_PORT", value = "8080" },
-    { name = "DJANGO_DEBUG", value = "False" },
+    { name = "DJANGO_DEBUG", value = "True" },
     { name = "DJANGO_SETTINGS_MODULE", value = "config.django.production" },
     { name = "DJANGO_LOGGING_FORMATTER", value = "human_readable" },
     { name = "DJANGO_LOGGING_LEVEL", value = "INFO" },
