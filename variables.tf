@@ -211,12 +211,12 @@ variable "env_variables" {
   default = [
     # UI ENV
     { name = "PROWLER_UI_VERSION", value = "stable" },
-    { name = "AUTH_URL", value = "http://New-Prowler-ALB-59150501.us-east-1.elb.amazonaws.com:3000" },
-    # Gonna add this ->  NEXTAUTH_URL=http://prowler-ui:3000
-    #{ name = "NEXTAUTH_URL", value = "http://New-Prowler-ALB-59150501.us-east-1.elb.amazonaws.com" },
-    { name = "AUTH_TRUST_HOST", value = "true" },
-    { name = "API_BASE_URL", value = "http://New-Prowler-ALB-59150501.us-east-1.elb.amazonaws.com:8080/api/v1" },
+    { name = "AUTH_URL", value = "http://localhost:3000" },
+    { name = "API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
+    { name = "NEXT_PUBLIC_API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
     { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://prowler-api:8080/api/v1/docs" },
+
+    { name = "AUTH_TRUST_HOST", value = "true" },
 
     { name = "UI_PORT", value = "3000" },
     { name = "AUTH_SECRET", value = "N/c6mnaS5+SWq81+819OrzQZlmx1Vxtp/orjttJSmw8=" },
@@ -249,7 +249,7 @@ variable "env_variables" {
     { name = "DJANGO_OUTPUT_S3_AWS_DEFAULT_REGION", value = "" },
     { name = "DJANGO_OUTPUT_S3_AWS_OUTPUT_BUCKET", value = "" },
 
-    { name = "DJANGO_ALLOWED_HOSTS", value = "localhost,127.0.0.1,prowler-api,prowler-ui" },
+    { name = "DJANGO_ALLOWED_HOSTS", value = "localhost,127.0.0.1,prowler-api,0.0.0.0,New-Prowler-ALB-1444291791.us-east-1.elb.amazonaws.com" },
     { name = "DJANGO_BIND_ADDRESS", value = "0.0.0.0" },
     { name = "DJANGO_PORT", value = "8080" },
     { name = "DJANGO_DEBUG", value = "True" },

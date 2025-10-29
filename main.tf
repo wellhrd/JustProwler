@@ -1,190 +1,26 @@
 module "ecs_cluster" {
-  source  = "terraform-aws-modules/ecs/aws//modules/cluster"
-  version = "5.12.1"
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "3.5.0"
 
-  cluster_name = "walt-prowler-cluster"
+  name = "walt-prowler-cluster"
 
-  # Capacity provider
-  fargate_capacity_providers = {
-    FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 100
-        base   = 20
-      }
+  container_insights = true
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+  default_capacity_provider_strategy = [
+    {
+      capacity_provider = "FARGATE"
+      weight            = 100
+      base              = 20
     }
-    FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 100
-      }
-    }
-  }
+  ]
 }
 
 ###########
 # SERVICES #
 ###########
 
-module "ecs_service_postgres" {
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.12.1"
-
-  name                   = "postgres-service"
-  cluster_arn            = module.ecs_cluster.arn
-  task_definition_arn    = aws_ecs_task_definition.postgres_task.arn
-  create_task_definition = false
-
-  subnet_ids         = module.vpc.public_subnets
-  security_group_ids = [aws_security_group.ecs_task_sg.id]
-
-  create_security_group = false
-
-  desired_count    = 1
-  cpu              = 1024
-  memory           = 2048
-  assign_public_ip = true
-
-  enable_autoscaling       = var.enable_autoscaling
-  autoscaling_min_capacity = var.autoscaling_min_capacity
-  autoscaling_max_capacity = var.autoscaling_max_capacity
-
-  enable_execute_command = true
-
-  # Attached service discovery for communicaiton among images
-  service_connect_configuration = {
-    enabled   = true
-    namespace = aws_service_discovery_private_dns_namespace.cloudmap-namespace.arn
-    service = {
-      client_alias = {
-        port     = 5432
-        dns_name = "postgres-db"
-      }
-      port_name      = "postgres-port"
-      discovery_name = "postgres"
-    }
-  }
-
-}
-
-# VALKEY
-module "ecs_service_valkey" {
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.12.1"
-
-  name                   = "valkey-service"
-  cluster_arn            = module.ecs_cluster.arn
-  task_definition_arn    = aws_ecs_task_definition.valkey_task.arn
-  create_task_definition = false
-
-  subnet_ids            = module.vpc.public_subnets
-  security_group_ids    = [aws_security_group.ecs_task_sg.id]
-  create_security_group = false
-
-  desired_count    = 1
-  cpu              = 1024
-  memory           = 2048
-  assign_public_ip = true
-
-  enable_autoscaling       = var.enable_autoscaling
-  autoscaling_min_capacity = var.autoscaling_min_capacity
-  autoscaling_max_capacity = var.autoscaling_max_capacity
-
-  enable_execute_command = true
-
-  # Attached service discovery for communicaiton among images
-  service_connect_configuration = {
-    enabled   = true
-    namespace = aws_service_discovery_private_dns_namespace.cloudmap-namespace.arn
-    service = {
-      client_alias = {
-        port     = 6379
-        dns_name = "valkey"
-      }
-      port_name      = "valkey-port"
-      discovery_name = "valkey"
-    }
-  }
-}
-
-# API
-module "ecs_service_api" {
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.12.1"
-
-  name                   = "prowler-api-service"
-  cluster_arn            = module.ecs_cluster.arn
-  task_definition_arn    = aws_ecs_task_definition.prowler_api_task.arn
-  create_task_definition = false
-
-  subnet_ids            = module.vpc.public_subnets
-  security_group_ids    = [aws_security_group.ecs_task_sg.id]
-  create_security_group = false
-
-  desired_count    = 1 # Worker and worker beat in the same task definition
-  cpu              = 2048
-  memory           = 4096 
-  assign_public_ip = true
-
-  enable_autoscaling       = var.enable_autoscaling
-  autoscaling_min_capacity = var.autoscaling_min_capacity
-  autoscaling_max_capacity = var.autoscaling_max_capacity
-
-  enable_execute_command = true
-
-
-  # Attached service discovery for communicaiton among images
-  service_connect_configuration = {
-    enabled   = true
-    namespace = aws_service_discovery_private_dns_namespace.cloudmap-namespace.arn
-    service = {
-      client_alias = {
-        port     = 8080
-        dns_name = "prowler-api"
-      }
-      port_name      = "prowler-api-port"
-      discovery_name = "prowler-api"
-    }
-  }
-}
-
-
-# UI service 
-module "ecs_service_ui" {
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.12.1"
-
-  name                   = "prowler-ui-service"
-  cluster_arn            = module.ecs_cluster.arn
-  task_definition_arn    = aws_ecs_task_definition.prowler_ui_task.arn
-  create_task_definition = false
-
-  subnet_ids            = module.vpc.public_subnets
-  security_group_ids    = [aws_security_group.ecs_task_sg.id]
-  create_security_group = false
-
-  desired_count    = 1
-  cpu              = 1024
-  memory           = 2048
-  assign_public_ip = true
-
-  enable_autoscaling       = var.enable_autoscaling
-  autoscaling_min_capacity = var.autoscaling_min_capacity
-  autoscaling_max_capacity = var.autoscaling_max_capacity
-
-  enable_execute_command = true
-
-  # Adds load balancer to the UI service 
-  load_balancer = {
-    service = {
-      target_group_arn = module.alb.target_groups["ecs_tg"].arn
-      container_name   = "prowler-ui"
-      container_port   = 3000
-    }
-  }
-  depends_on = [module.alb]
-
-}
-
-# Worker & Worker-beat is in the same task definition as the API
+# ECS Services have been moved to ecs_services.tf
 
 ##################
 # TASK Definitions
@@ -201,19 +37,11 @@ resource "aws_ecs_task_definition" "postgres_task" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([{
-    name      = "postgres"
-    image     = "${module.ecr["postgres"].repository_url}:16.3-alpine3.20"
+    name = "postgres"
+    #image     = "${module.ecr["postgres"].repository_url}:16.3-alpine3.20"
+    image     = "prowlercloud/prowler-api:8ebefb8" # TEMPORARY OVERRIDE FOR TESTING
     essential = true
 
-    # environment = [
-    #   { name = "POSTGRES_USER", value = "prowler" },
-    #   { name = "POSTGRES_PASSWORD", value = "postgres" },
-    #   { name = "POSTGRES_DB", value = "prowler_db" },
-    #   { name = "POSTGRES_HOST", value = "postgres-db" },
-    #   { name = "POSTGRES_PORT", value = "5432" },
-    #   { name = "POSTGRES_ADMIN_USER", value = "prowler_admin" },
-    #   { name = "POSTGRES_ADMIN_PASSWORD", value = "postgres" }
-    # ]
     environment = var.env_variables # Added for testing
 
     portMappings = [
@@ -226,7 +54,6 @@ resource "aws_ecs_task_definition" "postgres_task" {
       interval = 30
       timeout  = 5
       retries  = 3
-      #startPeriod = 10
     }
 
     logConfiguration = {
@@ -238,7 +65,6 @@ resource "aws_ecs_task_definition" "postgres_task" {
       }
     }
   }])
-
 }
 
 # VALKEY - Task Definition 
@@ -256,11 +82,6 @@ resource "aws_ecs_task_definition" "valkey_task" {
     image     = "${module.ecr["valkey/valkey"].repository_url}:7-alpine3.19"
     essential = true
 
-    # environment = [
-    #   { name = "VALKEY_HOST", value = "valkey" },
-    #   { name = "VALKEY_PORT", value = "6379" },
-    #   { name = "VALKEY_DB", value = "0" }
-    # ]
     environment = var.env_variables # Added for testing
 
     portMappings = [
@@ -273,9 +94,7 @@ resource "aws_ecs_task_definition" "valkey_task" {
       interval = 30
       timeout  = 5
       retries  = 3
-      #startPeriod = 10
     }
-
 
     logConfiguration = {
       logDriver = "awslogs"
@@ -300,8 +119,9 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([{
-    name  = "prowler-api"
-    image = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
+    name = "prowler-api"
+    #image = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
+    image = "prowlercloud/prowler-api:8ebefb8" # TEMPORARY OVERRIDE FOR TESTING
 
     essential = true
 
@@ -337,8 +157,9 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
 
     # WORKER IMAGE CONFIG
     {
-      name       = "worker"
-      image      = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
+      name = "worker"
+      #image      = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
+      image      = "prowlercloud/prowler-api:8ebefb8" # TEMPORARY OVERRIDE FOR TESTING
       essential  = false
       entryPoint = ["/home/prowler/docker-entrypoint.sh", "worker"]
 
@@ -359,11 +180,11 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
 
     # WORKER-BEAT image config
     {
-      name      = "worker-beat"
-      image     = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
-      essential = false
-      #entryPoint = ["/home/prowler/docker-entrypoint.sh", "beat"]
-      entryPoint = ["../docker-entrypoint.sh", "beat"] # Updated to this 3/6/25 - in doc.
+      name = "worker-beat"
+      #image     = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
+      image      = "prowlercloud/prowler-api:8ebefb8" # TEMPORARY OVERRIDE FOR TESTING
+      essential  = false
+      entryPoint = ["../docker-entrypoint.sh", "beat"]
 
       environment = var.env_variables
 
@@ -404,8 +225,7 @@ resource "aws_ecs_task_definition" "prowler_ui_task" {
 
   container_definitions = jsonencode([{
     name      = "prowler-ui"
-    #image     = "${module.ecr["prowlercloud/prowler-ui"].repository_url}:stable"
-    image = "prowlercloud/prowler-ui:stable"
+    image     = "prowlercloud/prowler-ui:stable"
     essential = true
 
     portMappings = [
