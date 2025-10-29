@@ -211,10 +211,10 @@ variable "env_variables" {
   default = [
     # UI ENV
     { name = "PROWLER_UI_VERSION", value = "stable" },
-    { name = "AUTH_URL", value = "http://localhost:3000" },
+    { name = "AUTH_URL", value = "http://new-prowler-alb-3139135595.us-east-1.elb.amazonaws.com" },
     { name = "API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
-    { name = "NEXT_PUBLIC_API_BASE_URL", value = "http://prowler-api:8080/api/v1" },
-    { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://prowler-api:8080/api/v1/docs" },
+    { name = "NEXT_PUBLIC_API_BASE_URL", value = "http://new-prowler-alb-3139135595.us-east-1.elb.amazonaws.com/api/v1" },
+    { name = "NEXT_PUBLIC_API_DOCS_URL", value = "http://new-prowler-alb-3139135595.us-east-1.elb.amazonaws.com/api/v1/docs" },
 
     { name = "AUTH_TRUST_HOST", value = "true" },
 

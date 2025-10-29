@@ -23,6 +23,15 @@ resource "aws_ecs_service" "postgres" {
       port_name      = "postgres-port"
       discovery_name = "postgres"
     }
+
+    log_configuration {
+      log_driver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.prowler.name
+        awslogs-region        = "us-east-1"
+        awslogs-stream-prefix = "service-connect-postgres"
+      }
+    }
   }
 
   enable_execute_command = true
@@ -53,12 +62,21 @@ resource "aws_ecs_service" "valkey" {
       port_name      = "valkey-port"
       discovery_name = "valkey"
     }
+
+    log_configuration {
+      log_driver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.prowler.name
+        awslogs-region        = "us-east-1"
+        awslogs-stream-prefix = "service-connect-valkey"
+      }
+    }
   }
 
   enable_execute_command = true
 }
 
-# API Service
+# API Service - This service needs to CONNECT TO postgres and valkey
 resource "aws_ecs_service" "prowler_api" {
   name            = "prowler-api-service"
   cluster         = "walt-prowler-cluster"
@@ -75,6 +93,8 @@ resource "aws_ecs_service" "prowler_api" {
   service_connect_configuration {
     enabled   = true
     namespace = aws_service_discovery_private_dns_namespace.cloudmap-namespace.arn
+
+    # Register prowler-api so UI can find it
     service {
       client_alias {
         port     = 8080
@@ -83,15 +103,24 @@ resource "aws_ecs_service" "prowler_api" {
       port_name      = "prowler-api-port"
       discovery_name = "prowler-api"
     }
+
+    log_configuration {
+      log_driver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.prowler.name
+        awslogs-region        = "us-east-1"
+        awslogs-stream-prefix = "service-connect-api"
+      }
+    }
   }
 
   enable_execute_command = true
 
   # Ensure Postgres and Valkey services are created first
-  depends_on = [aws_ecs_service.postgres, aws_ecs_service.valkey]
+  depends_on = [aws_ecs_service.postgres, aws_ecs_service.valkey, module.alb]
 }
 
-# UI Service
+# UI Service - This service needs to CONNECT TO prowler-api
 resource "aws_ecs_service" "prowler_ui" {
   name            = "prowler-ui-service"
   cluster         = "walt-prowler-cluster"
@@ -111,9 +140,24 @@ resource "aws_ecs_service" "prowler_ui" {
     container_port   = 3000
   }
 
+  # ADD SERVICE CONNECT - UI needs to discover prowler-api
+  service_connect_configuration {
+    enabled   = true
+    namespace = aws_service_discovery_private_dns_namespace.cloudmap-namespace.arn
+
+    log_configuration {
+      log_driver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.prowler.name
+        awslogs-region        = "us-east-1"
+        awslogs-stream-prefix = "service-connect-ui"
+      }
+    }
+  }
+
   enable_execute_command = true
 
-  depends_on = [module.alb]
+  depends_on = [module.alb, aws_ecs_service.prowler_api]
 }
 
 # Auto Scaling configuration for each service

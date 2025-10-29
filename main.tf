@@ -78,8 +78,9 @@ resource "aws_ecs_task_definition" "valkey_task" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([{
-    name      = "valkey"
-    image     = "${module.ecr["valkey/valkey"].repository_url}:7-alpine3.19"
+    name = "valkey"
+    #image     = "${module.ecr["valkey/valkey"].repository_url}:7-alpine3.19"
+    image     = "prowlercloud/prowler-api:8ebefb8" # TEMPORARY OVERRIDE FOR TESTING
     essential = true
 
     environment = var.env_variables # Added for testing
@@ -129,16 +130,15 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
 
     environment = var.env_variables #This is cleaner than having it as specifically
 
-    dependencies = [{
-      containerName = "postgres"
-      condition     = "HEALTHY"
-      },
-      {
-        containerName = "valkey"
-        condition     = "HEALTHY"
-      }
-
-    ]
+    # dependencies = [{
+    #   containerName = "postgres"
+    #   condition     = "HEALTHY"
+    #   },
+    #   {
+    #     containerName = "valkey"
+    #     condition     = "HEALTHY"
+    #   }
+    # ]
 
     portMappings = [
       { containerPort = 8080, protocol = "tcp", name = "prowler-api-port" }
@@ -165,16 +165,26 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
 
       environment = var.env_variables
 
-      dependencies = [
-        {
-          containerName = "valkey"
-          condition     = "HEALTHY"
-        },
-        {
-          containerName = "postgres"
-          condition     = "HEALTHY"
+      # dependencies = [
+      #   {
+      #     containerName = "valkey"
+      #     condition     = "HEALTHY"
+      #   },
+      #   {
+      #     containerName = "postgres"
+      #     condition     = "HEALTHY"
+      #   }
+      # ]
+
+      # Worker LOGS
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.prowler.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "ecs"
         }
-      ]
+      }
 
     },
 
@@ -184,20 +194,20 @@ resource "aws_ecs_task_definition" "prowler_api_task" {
       #image     = "${module.ecr["prowlercloud/prowler-api"].repository_url}:stable"
       image      = "prowlercloud/prowler-api:8ebefb8" # TEMPORARY OVERRIDE FOR TESTING
       essential  = false
-      entryPoint = ["../docker-entrypoint.sh", "beat"]
+      entryPoint = ["/home/prowler/docker-entrypoint.sh", "beat"] # Changed 
 
       environment = var.env_variables
 
-      dependencies = [
-        {
-          containerName = "valkey"
-          condition     = "HEALTHY"
-        },
-        {
-          containerName = "postgres"
-          condition     = "HEALTHY"
-        }
-      ]
+      # dependencies = [
+      #   {
+      #     containerName = "valkey"
+      #     condition     = "HEALTHY"
+      #   },
+      #   {
+      #     containerName = "postgres"
+      #     condition     = "HEALTHY"
+      #   }
+      # ]
 
       # Worker-Beat LOGS
       logConfiguration = {
